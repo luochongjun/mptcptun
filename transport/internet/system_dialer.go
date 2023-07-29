@@ -72,6 +72,12 @@ func (d *DefaultSystemDialer) Dial(ctx context.Context, src net.Address, dest ne
 		LocalAddr: resolveSrcAddr(dest.Network, src),
 		KeepAlive: goStdKeepAlive,
 	}
+	if dialer.MultipathTCP() {
+		newError("Outbound MultipathTCP is enable").WriteToLog(session.ExportIDToError(ctx))
+	} else {
+		newError("Outbound MultipathTCP is disable,we are enable it").WriteToLog(session.ExportIDToError(ctx))
+		dialer.SetMultipathTCP(true) // 主动启用mptcp
+	}
 
 	if sockopt != nil || len(d.controllers) > 0 {
 		dialer.Control = func(network, address string, c syscall.RawConn) error {
