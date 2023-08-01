@@ -18,6 +18,7 @@ type SocketConfig struct {
 	RxBufSize            uint64 `json:"rxBufSize"`
 	TxBufSize            uint64 `json:"txBufSize"`
 	ForceBufSize         bool   `json:"forceBufSize"`
+	Mptcp                bool   `json:"mptcp"`
 }
 
 // Build implements Buildable.
@@ -58,5 +59,6 @@ func (c *SocketConfig) Build() (*internet.SocketConfig, error) {
 		TxBufSize:            int64(c.TxBufSize),
 		ForceBufSize:         c.ForceBufSize,
 		BindToDevice:         c.BindToDevice,
+		Mptcp:         		  c.Mptcp,
 	}, nil
 }

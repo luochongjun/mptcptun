@@ -103,4 +103,5 @@ message SocketConfig {
   int64 rx_buf_size = 12;
   int64 tx_buf_size = 13;
   bool force_buf_size = 14;
+  bool mptcp = 15;
 }

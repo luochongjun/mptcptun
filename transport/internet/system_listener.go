@@ -45,12 +45,6 @@ func (dl *DefaultListener) Listen(ctx context.Context, addr net.Addr, sockopt *S
 	var l net.Listener
 	var err error
 	var network, address string
-	if lc.MultipathTCP() {
-		newError("MultipathTCP is enable").WriteToLog(session.ExportIDToError(ctx))
-	} else {
-		newError("MultipathTCP is disable,we are enable it").WriteToLog(session.ExportIDToError(ctx))
-		lc.SetMultipathTCP(true) // 主动启用mptcp
-	}
 	switch addr := addr.(type) {
 	case *net.TCPAddr:
 		network = addr.Network()
@@ -58,6 +52,14 @@ func (dl *DefaultListener) Listen(ctx context.Context, addr net.Addr, sockopt *S
 		lc.Control = getControlFunc(ctx, sockopt, dl.controllers)
 		if sockopt != nil && (sockopt.TcpKeepAliveInterval != 0 || sockopt.TcpKeepAliveIdle != 0) {
 			lc.KeepAlive = time.Duration(-1)
+		}
+		if sockopt != nil && sockopt.Mptcp {
+			if lc.MultipathTCP() {
+				newError("Listener MultipathTCP is enable").WriteToLog(session.ExportIDToError(ctx))
+			} else {
+				newError("Listener MultipathTCP is disable,we are enable it").WriteToLog(session.ExportIDToError(ctx))
+				lc.SetMultipathTCP(true) // 主动启用mptcp
+			}
 		}
 	case *net.UnixAddr:
 		lc.Control = nil
