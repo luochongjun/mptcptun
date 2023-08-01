@@ -42,3 +42,25 @@ This repo relies on the following third-party projects:
 - For testing only:
   - [miekg/dns](https://github.com/miekg/dns)
   - [h12w/socks](https://github.com/h12w/socks)
+
+
+## 配置文件转换
+配置文件通过protobuf转换，如果新增配置需要安装protoc来进行转换
+在下面的链接中下载对应平台的包
+https://github.com/protocolbuffers/protobuf/releases/tag/v3.17.1
+
+解压到系统路径中，例如
+```
+ sudo unzip -d  /usr/local/  protoc-3.17.3-linux-x86_64.zip
+ #记得给相关文件赋予权限
+ sudo chmod 777 /usr/local/include/google/protobuf/*.proto 
+ ```
+ 安装go相关插件
+ ```
+go install -v google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
+go install -v google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+ ```
+ 生成pb.go
+ ```
+ go run ./infra/vprotogen/
+ ```
