@@ -77,14 +77,6 @@ func (d *DefaultSystemDialer) Dial(ctx context.Context, src net.Address, dest ne
 		dialer.Control = func(network, address string, c syscall.RawConn) error {
 			return c.Control(func(fd uintptr) {
 				if sockopt != nil {
-					if dest.Network == net.Network_TCP && sockopt.Mptcp {
-						if dialer.MultipathTCP() {
-							newError("Dialer MultipathTCP is enable").WriteToLog(session.ExportIDToError(ctx))
-						} else {
-							newError("Dialer MultipathTCP is disable,we are enable it").WriteToLog(session.ExportIDToError(ctx))
-							dialer.SetMultipathTCP(true) // 主动启用mptcp
-						}
-					}
 					if err := applyOutboundSocketOptions(network, address, fd, sockopt); err != nil {
 						newError("failed to apply socket options").Base(err).WriteToLog(session.ExportIDToError(ctx))
 					}
@@ -101,6 +93,15 @@ func (d *DefaultSystemDialer) Dial(ctx context.Context, src net.Address, dest ne
 					}
 				}
 			})
+		}
+	}
+
+	if sockopt != nil && dest.Network == net.Network_TCP && sockopt.Mptcp {
+		if dialer.MultipathTCP() {
+			newError("Dialer MultipathTCP is enable").WriteToLog(session.ExportIDToError(ctx))
+		} else {
+			newError("Dialer MultipathTCP is disable,we are enable it").WriteToLog(session.ExportIDToError(ctx))
+			dialer.SetMultipathTCP(true) // 主动启用mptcp
 		}
 	}
 
