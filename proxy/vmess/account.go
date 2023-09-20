@@ -32,6 +32,10 @@ func (a *MemoryAccount) AnyValidID() *protocol.ID {
 	return a.AlterIDs[dice.Roll(len(a.AlterIDs))]
 }
 
+func (a *MemoryAccount) GetId() *protocol.ID {
+	return a.ID
+}
+
 // Equals implements protocol.Account.
 func (a *MemoryAccount) Equals(account protocol.Account) bool {
 	vmessAccount, ok := account.(*MemoryAccount)

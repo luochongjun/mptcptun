@@ -6,6 +6,7 @@ func init() {
 	api.CmdAPI.Commands = append(api.CmdAPI.Commands,
 		cmdAddInbounds,
 		cmdAddOutbounds,
+		cmdListUsers,
 		cmdRemoveInbounds,
 		cmdRemoveOutbounds)
 }

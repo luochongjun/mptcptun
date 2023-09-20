@@ -81,6 +81,24 @@ func (s *handlerServer) RemoveInbound(ctx context.Context, request *RemoveInboun
 	return &RemoveInboundResponse{}, s.ihm.RemoveHandler(ctx, request.Tag)
 }
 
+func (s *handlerServer) ListUsers(ctx context.Context, request *ListUsersRequest) (*ListUsersResponse, error) {
+	handler, err := s.ihm.GetHandler(ctx, request.Tag)
+	if err != nil {
+		return &ListUsersResponse{}, newError("failed to get handler: ", request.Tag).Base(err)
+	}
+	p, err := getInbound(handler)
+	if err != nil {
+		return &ListUsersResponse{}, newError("failed to get handler: ", request.Tag).Base(err)
+	}
+	if v,ok := p.(proxy.ListUser);ok {
+		newError("assert vmeess handler success ", request.Tag,v).AtDebug().WriteToLog()
+		ret := v.ListUser(ctx)
+		return &ListUsersResponse{Users:ret},nil
+		
+	}
+	return &ListUsersResponse{}, newError("Do not support user list: ", request.Tag).Base(err)
+}
+
 func (s *handlerServer) AlterInbound(ctx context.Context, request *AlterInboundRequest) (*AlterInboundResponse, error) {
 	rawOperation, err := serial.GetInstanceOf(request.Operation)
 	if err != nil {

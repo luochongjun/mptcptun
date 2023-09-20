@@ -31,6 +31,14 @@ message RemoveInboundRequest {
 
 message RemoveInboundResponse {}
 
+message ListUsersRequest {
+  string tag = 1;
+}
+
+message ListUsersResponse {
+  map<string,string> users = 1;
+}
+
 message AlterInboundRequest {
   string tag = 1;
   google.protobuf.Any operation = 2;
@@ -61,6 +69,8 @@ service HandlerService {
   rpc AddInbound(AddInboundRequest) returns (AddInboundResponse) {}
 
   rpc RemoveInbound(RemoveInboundRequest) returns (RemoveInboundResponse) {}
+
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {}
 
   rpc AlterInbound(AlterInboundRequest) returns (AlterInboundResponse) {}
 

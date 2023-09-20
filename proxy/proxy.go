@@ -50,3 +50,7 @@ type GetInbound interface {
 type GetOutbound interface {
 	GetOutbound() Outbound
 }
+
+type ListUser interface {
+	ListUser(context.Context) map[string]string
+}

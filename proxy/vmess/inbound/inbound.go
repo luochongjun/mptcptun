@@ -87,6 +87,23 @@ func (v *userByEmail) Get(email string) (*protocol.MemoryUser, bool) {
 	return user, found
 }
 
+type MemoryAccountType interface {
+	GetId() *protocol.ID
+}
+
+func (v *userByEmail) List() map[string]string   {
+
+	v.Lock()
+	defer v.Unlock()
+	ret := make(map[string]string)
+	for u := range v.cache {
+		if ma,ok := interface{}(v.cache[u].Account).(MemoryAccountType);ok {
+			ret[u] = ma.GetId().String()
+		}
+	}
+	return ret
+}
+
 func (v *userByEmail) Remove(email string) bool {
 	email = strings.ToLower(email)
 
@@ -175,6 +192,10 @@ func (h *Handler) RemoveUser(ctx context.Context, email string) error {
 	}
 	h.clients.Remove(email)
 	return nil
+}
+
+func (h *Handler) ListUser(ctx context.Context) map[string]string {
+	return h.usersByEmail.List()
 }
 
 func transferResponse(timer signal.ActivityUpdater, session *encoding.ServerSession, request *protocol.RequestHeader, response *protocol.ResponseHeader, input buf.Reader, output *buf.BufferedWriter) error {
