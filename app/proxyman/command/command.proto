@@ -46,6 +46,13 @@ message AddUsersRequest {
 
 message AddUsersResponse {}
 
+message RmUsersRequest {
+  string tag = 1;
+  repeated v2ray.core.common.protocol.User users = 2;
+}
+
+message RmUsersResponse {}
+
 message AlterInboundRequest {
   string tag = 1;
   google.protobuf.Any operation = 2;
@@ -80,6 +87,8 @@ service HandlerService {
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {}
 
   rpc AddUsers(AddUsersRequest) returns (AddUsersResponse) {}
+
+  rpc RmUsers(RmUsersRequest) returns (RmUsersResponse) {}
 
   rpc AlterInbound(AlterInboundRequest) returns (AlterInboundResponse) {}
 

@@ -124,6 +124,27 @@ func (s *handlerServer) AddUsers(ctx context.Context, request *AddUsersRequest) 
 	return &AddUsersResponse{},nil
 }
 
+func (s *handlerServer) RmUsers(ctx context.Context, request *RmUsersRequest) (*RmUsersResponse, error) {
+	handler, err := s.ihm.GetHandler(ctx, request.Tag)
+	if err != nil {
+		return &RmUsersResponse{}, newError("failed to get handler: ", request.Tag).Base(err)
+	}
+	p, err := getInbound(handler)
+	if err != nil {
+		return &RmUsersResponse{}, newError("failed to get handler: ", request.Tag).Base(err)
+	}
+	um, ok := p.(proxy.UserManager)
+	if !ok {
+		return &RmUsersResponse{},newError("proxy is not a UserManager")
+	}
+	for _,u := range request.Users {
+		if err := um.RemoveUser(ctx, u.Email); err != nil {
+			return &RmUsersResponse{},newError("failed to rm user", u.Email).Base(err)
+		}
+	}
+	return &RmUsersResponse{},nil
+}
+
 func (s *handlerServer) AlterInbound(ctx context.Context, request *AlterInboundRequest) (*AlterInboundResponse, error) {
 	rawOperation, err := serial.GetInstanceOf(request.Operation)
 	if err != nil {
