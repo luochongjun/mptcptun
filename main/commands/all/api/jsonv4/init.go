@@ -7,6 +7,7 @@ func init() {
 		cmdAddInbounds,
 		cmdAddOutbounds,
 		cmdListUsers,
+		cmdAddUsers,
 		cmdRemoveInbounds,
 		cmdRemoveOutbounds)
 }

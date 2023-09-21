@@ -91,12 +91,37 @@ func (s *handlerServer) ListUsers(ctx context.Context, request *ListUsersRequest
 		return &ListUsersResponse{}, newError("failed to get handler: ", request.Tag).Base(err)
 	}
 	if v,ok := p.(proxy.ListUser);ok {
-		newError("assert vmeess handler success ", request.Tag,v).AtDebug().WriteToLog()
+		newError("List users success ", request.Tag).AtDebug().WriteToLog()
 		ret := v.ListUser(ctx)
 		return &ListUsersResponse{Users:ret},nil
 		
 	}
 	return &ListUsersResponse{}, newError("Do not support user list: ", request.Tag).Base(err)
+}
+
+func (s *handlerServer) AddUsers(ctx context.Context, request *AddUsersRequest) (*AddUsersResponse, error) {
+	handler, err := s.ihm.GetHandler(ctx, request.Tag)
+	if err != nil {
+		return &AddUsersResponse{}, newError("failed to get handler: ", request.Tag).Base(err)
+	}
+	p, err := getInbound(handler)
+	if err != nil {
+		return &AddUsersResponse{}, newError("failed to get handler: ", request.Tag).Base(err)
+	}
+	um, ok := p.(proxy.UserManager)
+	if !ok {
+		return &AddUsersResponse{},newError("proxy is not a UserManager")
+	}
+	for _,u := range request.Users {
+		mUser, err := u.ToMemoryUser()
+		if err != nil {
+			return &AddUsersResponse{},newError("failed to parse user", u.Email).Base(err)
+		}
+		if err = um.AddUser(ctx, mUser); err != nil {
+			return &AddUsersResponse{},newError("failed to add user", u.Email).Base(err)
+		}
+	}
+	return &AddUsersResponse{},nil
 }
 
 func (s *handlerServer) AlterInbound(ctx context.Context, request *AlterInboundRequest) (*AlterInboundResponse, error) {
