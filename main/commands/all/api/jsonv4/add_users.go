@@ -96,6 +96,8 @@ func executeAddUsers(cmd *base.Command, args []string) {
 					base.Fatalf("failed to add user: %s", err)
 				}
 			}
+		} else {
+			base.Fatalf("failed to unmarshal args to json", err)
 		}
 	}
 }

@@ -83,9 +83,11 @@ func executeRmUsers(cmd *base.Command, args []string) {
 				}
 				_, err := client.RmUsers(ctx, r)
 				if err != nil {
-					base.Fatalf("failed to add user: %s", err)
+					base.Fatalf("failed to remove user: %s", err)
 				}
 			}
+		} else {
+			base.Fatalf("failed to unmarshal args to json", err)
 		}
 	}
 }
