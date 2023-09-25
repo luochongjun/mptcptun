@@ -4,8 +4,11 @@ import (
 	"fmt"
 
 	handlerService "github.com/v2fly/v2ray-core/v5/app/proxyman/command"
+	"github.com/v2fly/v2ray-core/v5/proxy/vmess"
 	"github.com/v2fly/v2ray-core/v5/main/commands/all/api"
 	"github.com/v2fly/v2ray-core/v5/main/commands/base"
+	"github.com/v2fly/v2ray-core/v5/common/serial"
+	"github.com/v2fly/v2ray-core/v5/common/protocol"
 )
 
 var cmdListUsers = &base.Command{
@@ -36,6 +39,25 @@ Example:
 	Run: executeListUsers,
 }
 
+func printVmessAccount(u *protocol.User){
+	acc,err := serial.GetInstanceOf(u.Account)
+	if  err != nil {
+		base.Fatalf("failed to parase users", err)
+	}
+	a := acc.(*vmess.Account)
+	fmt.Println(u.Email, u.Level, a.Id, a.AlterId, a.SecuritySettings.Type)
+}
+
+func toProxyAccount(u *protocol.User){
+	v2type := serial.V2Type(u.Account)
+	switch {
+		case v2type == "v2ray.core.proxy.vmess.Account":
+			printVmessAccount(u)
+		default:
+			base.Fatalf("Current protocol  not support list users")
+	}
+}
+
 func executeListUsers(cmd *base.Command, args []string) {
 	api.SetSharedFlags(cmd)
 	api.SetSharedConfigFlags(cmd)
@@ -62,8 +84,8 @@ func executeListUsers(cmd *base.Command, args []string) {
 		if err != nil {
 			base.Fatalf("failed to list users: %s", err)
 		}
-		for k,v := range ret.Users {
-			fmt.Println(tag," ",k," ",v)
+		for _,v := range ret.Users {
+			toProxyAccount(v)
 		}
 	}
 }

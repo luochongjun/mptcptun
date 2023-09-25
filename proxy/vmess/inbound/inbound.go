@@ -91,19 +91,6 @@ type MemoryAccountType interface {
 	GetId() *protocol.ID
 }
 
-func (v *userByEmail) List() map[string]string   {
-
-	v.Lock()
-	defer v.Unlock()
-	ret := make(map[string]string)
-	for u := range v.cache {
-		if ma,ok := interface{}(v.cache[u].Account).(MemoryAccountType);ok {
-			ret[u] = ma.GetId().String()
-		}
-	}
-	return ret
-}
-
 func (v *userByEmail) Remove(email string) bool {
 	email = strings.ToLower(email)
 
@@ -194,8 +181,23 @@ func (h *Handler) RemoveUser(ctx context.Context, email string) error {
 	return nil
 }
 
-func (h *Handler) ListUser(ctx context.Context) map[string]string {
-	return h.usersByEmail.List()
+func (h *Handler) ListUser(ctx context.Context) []*protocol.User {
+	var users []*protocol.User
+	for _,v := range h.usersByEmail.cache {
+		a := new(vmess.Account)
+		ma:=v.Account.(*vmess.MemoryAccount)
+		a.Id = ma.ID.String()
+		a.AlterId = uint32(len(ma.AlterIDs))
+		a.SecuritySettings = new(protocol.SecurityConfig)
+		a.SecuritySettings.Type = ma.Security
+
+		u := new(protocol.User)
+		u.Email = v.Email
+		u.Level = v.Level
+		u.Account = serial.ToTypedMessage(a)
+		users = append(users,u)
+	}
+	return users
 }
 
 func transferResponse(timer signal.ActivityUpdater, session *encoding.ServerSession, request *protocol.RequestHeader, response *protocol.ResponseHeader, input buf.Reader, output *buf.BufferedWriter) error {

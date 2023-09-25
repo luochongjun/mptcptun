@@ -52,5 +52,5 @@ type GetOutbound interface {
 }
 
 type ListUser interface {
-	ListUser(context.Context) map[string]string
+	ListUser(context.Context) []*protocol.User
 }

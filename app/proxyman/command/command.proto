@@ -36,7 +36,7 @@ message ListUsersRequest {
 }
 
 message ListUsersResponse {
-  map<string,string> users = 1;
+  repeated v2ray.core.common.protocol.User users = 1;
 }
 
 message AddUsersRequest {
